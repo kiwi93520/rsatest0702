@@ -41,24 +41,36 @@ namespace rsatest
 
         private void B_public_encrypt_Click(object sender, EventArgs e)
         {
-            if (mingRsa == null)
+            try
             {
-                
-                mingRsa.FromXmlString(form2.GetPublicKey());
+                if (mingRsa == null)
+                {
+
+                    mingRsa.FromXmlString(form2.GetPublicKey());
+                }
+
+                string message = textBox3.Text;
+                if (message == null)
+                {
+                    MessageBox.Show("Please enter the text!");
+                }
+
+                // Encrypt the message
+                byte[] encryptedMessage = mingRsa.Encrypt(Encoding.UTF8.GetBytes(message), false);
+
+
+                // Sign the message
+                byte[] hash = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(message));
+                byte[] signature = myRsa.SignHash(hash, CryptoConfig.MapNameToOID("SHA256"));
+
+                // Send encrypted message and signature to Form2
+                form2.ReceiveMessage(encryptedMessage, signature);
             }
-
-            string message = textBox3.Text;
-
-            // Encrypt the message
-            byte[] encryptedMessage = mingRsa.Encrypt(Encoding.UTF8.GetBytes(message), false);
+            catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
             
-
-            // Sign the message
-            byte[] hash = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(message));
-            byte[] signature = myRsa.SignHash(hash, CryptoConfig.MapNameToOID("SHA256"));
-
-            // Send encrypted message and signature to Form2
-            form2.ReceiveMessage(encryptedMessage, signature);
         }
         public string GetPublicKey()
         {

@@ -60,29 +60,36 @@ namespace rsatest
 
         private void A_public_decrypt_Click(object sender, EventArgs e)
         {
-            if (receivedEncryptedMessage == null || receivedSignature == null)
+            try 
             {
-                MessageBox.Show("No message to decrypt and verify.");
-                return;
-            }
-            // Decrypt the message
-            byte[] decryptedMessageBytes = mingRsa.Decrypt(receivedEncryptedMessage, false);
-            string decryptedMessage = Encoding.UTF8.GetString(decryptedMessageBytes);
+                if (receivedEncryptedMessage == null || receivedSignature == null)
+                {
+                    MessageBox.Show("No message to decrypt and verify.");
+                    return;
+                }
+                // Decrypt the message
+                byte[] decryptedMessageBytes = mingRsa.Decrypt(receivedEncryptedMessage, false);
+                string decryptedMessage = Encoding.UTF8.GetString(decryptedMessageBytes);
 
-            // Verify the signature
+                // Verify the signature
 
-            byte[] hash = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(decryptedMessage));
-            bool isSignatureValid = yourRsa.VerifyHash(hash, CryptoConfig.MapNameToOID("SHA256"), receivedSignature);
+                byte[] hash = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(decryptedMessage));
+                bool isSignatureValid = yourRsa.VerifyHash(hash, CryptoConfig.MapNameToOID("SHA256"), receivedSignature);
 
-            if (isSignatureValid)
+                if (isSignatureValid)
+                {
+                    MessageBox.Show("Signature is valid. Message: " + decryptedMessage);
+                }
+                else
+                {
+                    MessageBox.Show("Signature is invalid.");
+                }
+
+            } catch (Exception ex)
             {
-                MessageBox.Show("Signature is valid. Message: " + decryptedMessage);
+                MessageBox.Show(ex.Message);
             }
-            else
-            {
-                MessageBox.Show("Signature is invalid.");
-            }
-
+           
         }
     }
 }
